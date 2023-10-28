@@ -10,13 +10,36 @@ function scheduleTabSleep(tabInfo) {
 
   chrome.storage.local.get('sleptTabs', function (data) {
     let sleptTabs = data.sleptTabs || [];
-    sleptTabs.push({ wakeupTime, tabId, tabUrl, tabTitle });
+    sleptTabs.push({ wakeupTime, tabUrl, tabTitle });
     chrome.storage.local.set({ sleptTabs });
   });
 
-  const alarmInfo = {
-    when: wakeupTime
-  };
-  chrome.alarms.create(`tab_${tabId}`, alarmInfo);
+  // Closing the tab
   chrome.tabs.remove(tabId);
+
+  // Setting the alarm to check every minute for tabs to reopen
+  chrome.alarms.create('checkTabs', { periodInMinutes: 1 });
+}
+
+chrome.alarms.onAlarm.addListener(alarm => {
+  if (alarm.name === 'checkTabs') {
+    checkTabs();
+  }
+});
+
+function checkTabs() {
+  chrome.storage.local.get('sleptTabs', function (data) {
+    let sleptTabs = data.sleptTabs || [];
+    const now = new Date().getTime();
+
+    sleptTabs = sleptTabs.filter(tabInfo => {
+      if (tabInfo.wakeupTime <= now) {
+        chrome.tabs.create({ url: tabInfo.tabUrl });
+        return false; // Remove tab from the list
+      }
+      return true; // Keep tab in the list
+    });
+
+    chrome.storage.local.set({ sleptTabs });
+  });
 }
