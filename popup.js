@@ -29,10 +29,32 @@ function loadSleptTabs() {
     sleptTabsList.innerHTML = '';
 
     const sleptTabs = data.sleptTabs || [];
-    sleptTabs.forEach(tabInfo => {
+    sleptTabs.forEach((tabInfo, index) => {
       const li = document.createElement('li');
-      li.textContent = `${tabInfo.tabTitle} - Wake up at: ${new Date(tabInfo.wakeupTime).toLocaleString()}`;
+      li.innerHTML = `
+                ${tabInfo.tabTitle} (${tabInfo.tabUrl}) - Wake up at: ${new Date(tabInfo.wakeupTime).toLocaleString()} 
+                <button data-index="${index}" class="deleteBtn">Delete</button>
+            `;
       sleptTabsList.appendChild(li);
+    });
+
+    document.querySelectorAll('.deleteBtn').forEach(button => {
+      button.addEventListener('click', function (e) {
+        const index = e.target.dataset.index;
+        deleteSleptTab(index);
+      });
+    });
+  });
+}
+
+function deleteSleptTab(index) {
+  chrome.storage.local.get('sleptTabs', function (data) {
+    let sleptTabs = data.sleptTabs || [];
+    const removedTab = sleptTabs.splice(index, 1)[0];
+
+    chrome.alarms.clear(`tab_${removedTab.tabId}`);
+    chrome.storage.local.set({ sleptTabs }, function () {
+      loadSleptTabs();
     });
   });
 }
