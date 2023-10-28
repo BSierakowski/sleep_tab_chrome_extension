@@ -7,9 +7,14 @@ function scheduleTabSleep(wakeupTime, tabId) {
   chrome.tabs.remove(tabId);
 }
 
-chrome.alarms.onAlarm.addListener(alarm => {
-  const tabId = parseInt(alarm.name.split('_')[1]);
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'scheduleTabSleep') {
+    scheduleTabSleep(request.wakeupTime, request.tabId);
+    sendResponse({ result: 'Tab scheduled successfully' });
+  }
+});
 
+chrome.alarms.onAlarm.addListener(alarm => {
   chrome.notifications.create({
     type: 'basic',
     iconUrl: 'images/icon128.png',
