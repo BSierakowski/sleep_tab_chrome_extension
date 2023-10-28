@@ -44,12 +44,19 @@ function checkTabs() {
 
     sleptTabs = sleptTabs.filter(tabInfo => {
       if (tabInfo.wakeupTime <= now) {
-        chrome.tabs.create({ url: tabInfo.tabUrl });
-        return false; // Remove tab from the list
+        chrome.tabs.create({
+          url: 'data:text/html,<html><body><h1>Your slept tab is waking up!</h1><p>Redirecting to the original content...</p></body></html>'
+        }, function (tab) {
+          setTimeout(() => {
+            chrome.tabs.update(tab.id, { url: tabInfo.tabUrl });
+          }, 3000);
+        });
+        return false;
       }
-      return true; // Keep tab in the list
+      return true;
     });
 
     chrome.storage.local.set({ sleptTabs });
   });
 }
+
