@@ -33,9 +33,17 @@ function loadSleptTabs() {
       const li = document.createElement('li');
       li.innerHTML = `
                 ${tabInfo.tabTitle} (${tabInfo.tabUrl}) - Wake up at: ${new Date(tabInfo.wakeupTime).toLocaleString()} 
+                <button data-index="${index}" class="unsleepBtn">Unsleep Now</button>
                 <button data-index="${index}" class="deleteBtn">Delete</button>
             `;
       sleptTabsList.appendChild(li);
+    });
+
+    document.querySelectorAll('.unsleepBtn').forEach(button => {
+      button.addEventListener('click', function (e) {
+        const index = e.target.dataset.index;
+        unsleepTabNow(index);
+      });
     });
 
     document.querySelectorAll('.deleteBtn').forEach(button => {
@@ -53,6 +61,19 @@ function deleteSleptTab(index) {
     const removedTab = sleptTabs.splice(index, 1)[0];
 
     chrome.alarms.clear(`tab_${removedTab.tabId}`);
+    chrome.storage.local.set({ sleptTabs }, function () {
+      loadSleptTabs();
+    });
+  });
+}
+
+
+function unsleepTabNow(index) {
+  chrome.storage.local.get('sleptTabs', function (data) {
+    let sleptTabs = data.sleptTabs || [];
+    const unsleepTab = sleptTabs.splice(index, 1)[0];
+
+    chrome.tabs.create({ url: unsleepTab.tabUrl });
     chrome.storage.local.set({ sleptTabs }, function () {
       loadSleptTabs();
     });
