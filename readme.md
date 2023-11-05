@@ -22,3 +22,4 @@ Pull requests welcome :).
 
 Some ideas:
 - Get the chrome notifications api working: https://developer.chrome.com/docs/extensions/reference/notifications/
+- Better icon :D
