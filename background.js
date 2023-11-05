@@ -1,7 +1,7 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   // This is what lets the background script listen to the "sleep tab" request. The background script is always running,
-  // so it can listen for this request and schedule the tab to sleep. It also has access to storgae.local, which is
-  // where we store the list of slept tabs, and alarms, which is the job that runs to wake up the tab.
+  // so it can listen for this request and schedule the tab to sleep. It has access to alarms, which is the background
+  // job that's constantly running to check to see if we should wake up the tabs.
   if (request.action === 'scheduleTabSleep') {
     scheduleTabSleep(request);
     sendResponse({ result: 'Tab scheduled successfully' });

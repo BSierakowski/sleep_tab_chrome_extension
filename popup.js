@@ -1,4 +1,6 @@
 document.getElementById('sleepForm').addEventListener('submit', function (e) {
+  // This is what runs when you click "sleep tab" in the extension popup.
+
   e.preventDefault();
   const datetime = document.getElementById('datetime').value;
   const wakeupTime = new Date(datetime).getTime();
@@ -8,6 +10,7 @@ document.getElementById('sleepForm').addEventListener('submit', function (e) {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       const tab = tabs[0];
       chrome.runtime.sendMessage({
+        // scheduleTabSleep is the action that background.js listens for
         action: 'scheduleTabSleep',
         wakeupTime: wakeupTime,
         tabId: tab.id,
@@ -24,6 +27,7 @@ document.getElementById('sleepForm').addEventListener('submit', function (e) {
 });
 
 function loadSleptTabs() {
+  // iterates through our collection of slept tabs and displays them in the popup
   chrome.storage.local.get('sleptTabs', function (data) {
     const sleptTabsList = document.getElementById('sleptTabsList');
     sleptTabsList.innerHTML = '';
