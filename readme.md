@@ -22,8 +22,3 @@ Pull requests welcome :).
 
 Some ideas:
 - Get the chrome notifications api working: https://developer.chrome.com/docs/extensions/reference/notifications/
-
-
-Some ideas to do:
-- Maybe make the "slept tabs" section look a bit better, use favicon, etc.
-- Only show the path so the domain isn't quite so long, limit max length.

@@ -35,8 +35,16 @@ function loadSleptTabs() {
     const sleptTabs = data.sleptTabs || [];
     sleptTabs.forEach((tabInfo, index) => {
       const li = document.createElement('li');
+      let maxLength = 40;
+      let truncatedTitle = tabInfo.tabTitle.length>maxLength ? tabInfo.tabTitle.substring(0, maxLength) + "..." : tabInfo.tabTitle;
+      let truncatedUrl = tabInfo.tabUrl.length>maxLength ? tabInfo.tabUrl.substring(0, maxLength) + "..." : tabInfo.tabUrl;
+
+
       li.innerHTML = `
-                ${tabInfo.tabTitle} (${tabInfo.tabUrl}) - Wake up at: ${new Date(tabInfo.wakeupTime).toLocaleString()} 
+                <img style="height:12px; width:12px" src="https://www.google.com/s2/favicons?domain=${tabInfo.tabUrl}" /> 
+                ${truncatedTitle} <br /> 
+                (${truncatedUrl}) <br />
+                Wake up at: ${new Date(tabInfo.wakeupTime).toLocaleString()} <br />
                 <button data-index="${index}" class="unsleepBtn">Unsleep Now</button>
                 <button data-index="${index}" class="deleteBtn">Delete</button>
             `;
