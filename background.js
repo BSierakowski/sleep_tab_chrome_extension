@@ -1,4 +1,7 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  // This is what lets the background script listen to the "sleep tab" request. The background script is always running,
+  // so it can listen for this request and schedule the tab to sleep. It also has access to storgae.local, which is
+  // where we store the list of slept tabs, and alarms, which is the job that runs to wake up the tab.
   if (request.action === 'scheduleTabSleep') {
     scheduleTabSleep(request);
     sendResponse({ result: 'Tab scheduled successfully' });
@@ -8,16 +11,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 function scheduleTabSleep(tabInfo) {
   const { wakeupTime, tabId, tabUrl, tabTitle } = tabInfo;
 
+  // Push this tab and wakeup time into the collection of all slept IDs
   chrome.storage.local.get('sleptTabs', function (data) {
     let sleptTabs = data.sleptTabs || [];
     sleptTabs.push({ wakeupTime, tabUrl, tabTitle });
     chrome.storage.local.set({ sleptTabs });
   });
 
-  chrome.tabs.remove(tabId);
+  // Create the "alarm", which is the job that runs to wake up the tab
   chrome.alarms.create('checkTabs', { periodInMinutes: 1 });
 
-  // Open a new tab with a message
+  // In the future we can try this notification:
+  // chrome.notifications.create('', {type: "basic", iconUrl: "images/icon128.png", title: "Title", message: "Message"});
+  // It says it works in the console, but, no notification appears. I think this would be a lot cleaner than the tab
+  // creation method below, but... it doesn't work, so we'll stick with what we got.
+
+  // Close the tab
+  chrome.tabs.remove(tabId);
+
+  // Open a new tab as "notification" that the tab has been slept
   chrome.tabs.create({
     url: 'data:text/html,<html><body><h1>Your tab has been slept!</h1><p>It will wake up at: ' +
       new Date(wakeupTime).toLocaleString() +
@@ -29,7 +41,6 @@ function scheduleTabSleep(tabInfo) {
     }, 3000);
   });
 }
-
 
 chrome.alarms.onAlarm.addListener(alarm => {
   if (alarm.name === 'checkTabs') {
