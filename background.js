@@ -30,16 +30,34 @@ function scheduleTabSleep(tabInfo) {
   chrome.tabs.remove(tabId);
 
   // Open a new tab as "notification" that the tab has been slept
+  const messageHtml = `
+    <html>
+    <head>
+        <style>
+            body { font-family: 'Arial', sans-serif; text-align: center; padding-top: 50px; }
+            h1 { color: #4CAF50; }
+            p { color: #555; }
+            #container { background-color: #f9f9f9; width: 300px; margin: auto; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <h1>Your tab has been slept!</h1>
+            <p>It will wake up at: ${new Date(wakeupTime).toLocaleString()}</p>
+            <p>This tab will close shortly.</p>
+        </div>
+    </body>
+    </html>`;
+
   chrome.tabs.create({
-    url: 'data:text/html,<html><body><h1>Your tab has been slept!</h1><p>It will wake up at: ' +
-      new Date(wakeupTime).toLocaleString() +
-      '</p><p>This tab will close shortly.</p></body></html>'
+    url: 'data:text/html,' + encodeURIComponent(messageHtml)
   }, function (tab) {
     // Close the message tab after 3 seconds
     setTimeout(() => {
       chrome.tabs.remove(tab.id);
     }, 3000);
   });
+
 }
 
 chrome.alarms.onAlarm.addListener(alarm => {
@@ -55,8 +73,27 @@ function checkTabs() {
 
     sleptTabs = sleptTabs.filter(tabInfo => {
       if (tabInfo.wakeupTime <= now) {
+
+        const messageHtml = `
+          <html>
+          <head>
+              <style>
+                  body { font-family: 'Arial', sans-serif; text-align: center; padding-top: 50px; }
+                  h1 { color: #4CAF50; }
+                  p { color: #555; }
+                  #container { background-color: #f9f9f9; width: 300px; margin: auto; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+              </style>
+          </head>
+          <body>
+              <div id="container">
+                  <h1>Your slept tab is waking up!</h1>
+                  <p>Redirecting to the slept tab...</p>
+              </div>
+          </body>
+          </html>`;
+
         chrome.tabs.create({
-          url: 'data:text/html,<html><body><h1>Your slept tab is waking up!</h1><p>Redirecting to the original content...</p></body></html>'
+          url: 'data:text/html,' + encodeURIComponent(messageHtml)
         }, function (tab) {
           setTimeout(() => {
             chrome.tabs.update(tab.id, { url: tabInfo.tabUrl });
