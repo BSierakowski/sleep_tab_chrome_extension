@@ -1,6 +1,29 @@
-todo:
+# Tab Sleeper Chrome Extension
 
-- turn page opening into notifications: https://moshfeu.medium.com/notifications-in-chrome-extension-50aac17b3b7d
+Imagine if you could sleep a tab the same way you could sleep an email...
+
+Well now you can!
+
+## How to use
+
+1. Download this repo
+2. Visit chrome://extensions 
+3. Enable developer mode 
+4. Click "Load unpacked"
+5. Select the folder you downloaded
+
+Then when you're on a page you want to sleep, click the extension icon, set the wakeup date, then click "Sleep this tab"
+
+You've done it!
+
+## Future improvements
+
+Pull requests welcome :).
+
+Some ideas:
+- Get the chrome notifications api working: https://developer.chrome.com/docs/extensions/reference/notifications/
+
+
+Some ideas to do:
 - Maybe make the "slept tabs" section look a bit better, use favicon, etc.
 - Only show the path so the domain isn't quite so long, limit max length.
-- Document the app for a quick review video
